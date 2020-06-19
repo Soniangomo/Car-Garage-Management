@@ -1,0 +1,17 @@
+ALTER TABLE cars CHANGE COLUMN carID carID INT NOT NULL;
+
+ALTER TABLE cars DROP PRIMARY KEY;
+
+DROP TABLE cars;
+
+CREATE TABLE cars (
+	carID INT NOT NULL AUTO_INCREMENT,
+	licensePlate VARCHAR(10),
+	customerID1 INT,
+	customerID2 INT,
+	customerID3 INT,
+	customerID4 INT,
+	customerID5 INT,
+	PRIMARY KEY (carID)
+);
+

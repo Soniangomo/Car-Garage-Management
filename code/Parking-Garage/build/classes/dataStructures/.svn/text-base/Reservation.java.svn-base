@@ -1,0 +1,240 @@
+//Brian Goodacre
+package dataStructures;
+
+import java.sql.*;
+import java.util.Calendar;
+import java.util.ArrayList;
+import database.*;
+import databases.*;
+
+
+public class Reservation extends Database{
+	/*Fields*/
+	private int reservationID;
+	private int customerID;
+	private int carID;
+	private int parkingSpot;
+	private Calendar reservationTimeIn;
+	private Calendar reservationTimeOut;
+	private Calendar actualTimeIn;
+	private Calendar actualTimeOut;
+	
+	/*Constructors*/
+	public Reservation(){
+	}
+	public Reservation(int revID, int custID, int crID, Calendar in, Calendar out, int pSpot, Calendar aIn, Calendar aOut){
+		reservationID = revID;
+		customerID = custID;
+		carID = crID;
+		parkingSpot=pSpot;
+		reservationTimeIn = in;
+		reservationTimeOut = out;
+		actualTimeIn = aIn;
+		actualTimeOut = aOut;
+	}
+	/*	Purpose:	Make a reservation
+	 * 	Input:		Customer ID
+	 * 				Calendar timeIn
+	 * 				Calendar timeOut
+	 * 	Output:		Reservation Object if successful
+	 * 				no parking spots: -1 for ints and null for Calendar objects
+	 * 				too many reservation: -2 for ints, null for Calendar objects*/
+	public Reservation(int custID, int car_ID, Calendar in, Calendar out) throws ClassNotFoundException, SQLException{
+		parkingSpot = Database.availableParkingSpot(in, out);
+		//No parking spot
+		if (parkingSpot == -1){
+			reservationID=-1;
+			customerID=-1;
+			carID=-1;
+			parkingSpot=-1;
+			reservationTimeIn=null;
+			reservationTimeOut=null;
+			actualTimeIn=null;
+			actualTimeOut=null;
+		}
+		//Too many reservations
+		else if (Database_Helpers.numReservations(Database_Constructors.ID_to_Customer(custID))==3){
+			reservationID=-2;
+			customerID=-2;
+			carID=-2;
+			parkingSpot=-2;
+			reservationTimeIn=null;
+			reservationTimeOut=null;
+			actualTimeIn=null;
+			actualTimeOut=null;
+		}
+		//There is a parking spot and can make the reservation
+		else{
+			/*update Database*/
+			stmt.executeUpdate("" +
+					" INSERT INTO Reservations " +
+					" (customerID, arrivalTime, departureTime, parkingSpaceID, floorID)" +
+					" VALUES " +
+					" ("+custID+", '"+Database_Helpers.Calendar_to_SQLTime(in) +"', '" + Database_Helpers.Calendar_to_SQLTime(out) + "', " + parkingSpot + ", " + this.getFloorNumber()+" );");
+			rs=stmt.executeQuery("SELECT MAX(reservationID) FROM Reservations");
+			rs.next();
+			
+			/*update Reservation object*/
+			reservationID=rs.getInt(1);
+			customerID = custID;
+			carID = car_ID; //if known
+			//parkingSpot is known
+			reservationTimeIn = in;
+			reservationTimeOut = out;
+			//actualTimeIn is updated later
+			//actualTimeOut is updated later
+			
+			/*Update Customer Database*/
+			Customer temp = Database_Constructors.ID_to_Customer(custID);
+			temp.updateReservation(reservationID);
+			
+			/*Update Parking Space Database*/
+			ParkingSpace.reserveParkingSpace(parkingSpot, reservationID, reservationTimeIn, reservationTimeOut);
+			//TODO - Input Reservation function
+		}
+	}
+
+	
+	/*Helper Functions*/
+	public int getReservationID(){
+		return reservationID;
+	}
+	public int getCustomerID(){
+		return customerID;
+	}
+	public int getCarID(){
+		return carID;
+	}
+	public int getParkingSpot(){
+		return parkingSpot;
+	}
+	public int getFloorNumber(){
+		return parkingSpot/spotsPerFloor+1;
+	}
+	/*purpose: returns ArrayList of Calendar objects:
+	 * 1	reservationTimeIn;
+	 * 2	reservationTimeOut
+	 * 3	actualTimeIn
+	 * 4	actualTimeOut
+	 * 	*/
+	public ArrayList<Calendar> reservationInformation(){
+		ArrayList<Calendar> output = new ArrayList<Calendar>();
+		output.add(reservationTimeIn);
+		output.add(reservationTimeOut);
+		output.add(actualTimeIn);
+		output.add(actualTimeOut);
+		return output;
+	}
+	public void setArrivalTime(Calendar arrival){
+		actualTimeIn=arrival;
+	}
+	public void setDepartureTime(Calendar departure){
+		actualTimeOut=departure;
+	}
+	
+	/*Functions that edit the Database*/
+	/*purpose: 	update reservation
+	 * output:	true if it worked
+	 * 			false if it failed*/
+	public boolean updateReservation(Calendar newIn, Calendar Out){
+		return true;
+	}
+	/*	Purpose:	Delete a reservation
+	 * 	Input:		None - call via the Reservation Object
+	 * 	Output:		boolean true*/
+	public boolean deleteReservation(){
+		/*Update Parking Space Database*/
+		/*Update Customer Database*/
+		
+		
+		/*delete fields of this object*/
+		reservationID=-1;
+		customerID=-1;
+		carID=-1;
+		parkingSpot=-1;
+		reservationTimeIn=null;
+		reservationTimeOut=null;
+		actualTimeIn=null;
+		actualTimeOut=null;
+		return true;
+	}
+	
+	/*Static Functions*/
+	/*	Purpose:	Given a time, return all reservations starting at that time*/
+	public static ArrayList<Reservation> getAllStartReservations (Calendar c) throws SQLException, ClassNotFoundException{
+		//return object
+		ArrayList<Reservation> alr= new ArrayList<Reservation>(); 
+		ArrayList<Integer> temp1 = new ArrayList<Integer>();
+		String temp = Database_Helpers.Calendar_to_SQLTime(c);
+		
+		
+		//query database
+		ResultSet rs2 = stmt.executeQuery("" +
+				" SELECT reservationID " +
+				" FROM reservations " +
+				" WHERE arrivalTime ='" +temp+"'");
+		
+		//get reservation IDs
+		while (rs2.next()){
+			temp1.add(rs2.getInt(1));
+		}
+		//convert
+		for (int i=0; i<temp1.size(); i++){
+			alr.add(Database_Constructors.ID_to_Reservation(temp1.get(i)));
+		}
+		rs2.close();
+		
+		return alr;
+	}
+	/*	Purpose:	Given a time, return all end reservations at that time*/
+	public static ArrayList<Reservation> getAllEndReservations (Calendar c) throws SQLException, ClassNotFoundException{
+		//return object
+		ArrayList<Reservation> alr= new ArrayList<Reservation>(); 
+		ArrayList<Integer> temp1 = new ArrayList<Integer>();
+		String temp = Database_Helpers.Calendar_to_SQLTime(c);
+		
+		//query database
+		ResultSet rs2 = stmt.executeQuery("" +
+				" SELECT reservationID " +
+				" FROM reservations " +
+				" WHERE departureTime ='" +temp+"'");
+		
+		//get reservation IDs
+		while (rs2.next()){
+			temp1.add(rs2.getInt(1));
+		}
+		//convert
+		for (int i=0; i<temp1.size(); i++){
+			alr.add(Database_Constructors.ID_to_Reservation(temp1.get(i)));
+		}
+		rs2.close();
+		
+		return alr;
+	}
+	/*	Purpose:	Given a time, return all reservations of that are during that time*/
+	public static ArrayList<Reservation> getAllReservations (Calendar c) throws SQLException, ClassNotFoundException{
+		//return object
+		ArrayList<Reservation> alr= new ArrayList<Reservation>();
+		ArrayList<Integer> temp1 = new ArrayList<Integer>();
+		String column = Database_Helpers.Calendar_to_DatabaseCalendar(c);
+		
+		//query database
+		ResultSet rs2 = stmt.executeQuery("" +
+				" SELECT " + column + 
+				" FROM parkingspaces " +
+				" WHERE " + column + " IS NOT NULL");
+		
+		//get reservationIDs
+		while (rs2.next()){
+			temp1.add(rs2.getInt(1));
+		}
+		rs2.close();
+		
+		//convert
+		for (int i=0; i<temp1.size(); i++){
+			alr.add(Database_Constructors.ID_to_Reservation(temp1.get(i)));
+		}
+		
+		return alr;
+	}
+}

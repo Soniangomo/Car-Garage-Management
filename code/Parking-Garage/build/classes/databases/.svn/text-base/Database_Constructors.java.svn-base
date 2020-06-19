@@ -1,0 +1,128 @@
+package databases;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import dataStructures.*;
+import database.*;
+
+public class Database_Constructors extends Database{
+	/*	Purpose:	Convert a Customer ID to a Customer Object
+	 * 	Input:		int representing a Customer
+	 * 	Output:		Customer Object 
+	 * */
+	public static Customer ID_to_Customer (int id) throws ClassNotFoundException, SQLException{
+		Customer temp = null;
+		
+		rs = stmt.executeQuery("" +
+				" SELECT  * " +
+				" FROM customers" +
+				" WHERE customerID " +
+				" LIKE " + id);
+		
+		while(rs.next()){
+			ArrayList<Integer> tempCarIDs = new ArrayList<Integer>();
+			ArrayList<Integer> tempUpRes = new ArrayList<Integer>();
+			ArrayList<Integer> tempPastRes = new ArrayList<Integer>();
+			//add car reservations to an ArrayList
+			int temp1;
+			for (int i = 4; i<=8; i++){
+				temp1 = rs.getInt(i);
+				if (temp1!=0){
+					tempCarIDs.add(rs.getInt(i));
+				}
+			}
+			//add upcoming reservation
+			for (int i = 10; i<=12; i++){
+				temp1 = rs.getInt(i);
+				if (temp1!=0){
+					tempUpRes.add(rs.getInt(i));
+				}
+			}
+			//add past reservations
+			for (int i = 13; i<=15; i++){
+				temp1 = rs.getInt(i);
+				if (temp1!=0){
+					tempPastRes.add(rs.getInt(i));
+				}
+			}
+			//create new Customer
+			temp = new Customer(
+					rs.getInt(1),
+					rs.getString(2),
+					rs.getFloat(3),
+					tempCarIDs,
+					rs.getInt(9),
+					tempUpRes,
+					tempPastRes
+					);
+		}		
+		return temp;
+	}
+	
+	/*	Purpose:	Convert a Reservation ID to a Reservation Object
+	 * 	Input:		int Reservation ID
+	 * 	Output:		corresponding Reservation object
+	 * */
+	public static Reservation ID_to_Reservation (int id) throws ClassNotFoundException, SQLException{
+		Reservation temp = null;
+		//get from database
+		rs = stmt.executeQuery("" +
+				" SELECT  * " +
+				" FROM reservations" +
+				" WHERE reservationID " +
+				" LIKE " + id);
+		
+		if(rs.next()){
+			//making Calendar Objects
+			Calendar arrTime = Database_Helpers.SQLTime_to_Calendar(rs.getTime(4));
+			Calendar depTime = Database_Helpers.SQLTime_to_Calendar(rs.getTime(5));
+			Calendar ACarrTime = Database_Helpers.SQLTime_to_Calendar(rs.getTime(8));
+			Calendar ACdepTime = Database_Helpers.SQLTime_to_Calendar(rs.getTime(9));
+			//making Reservation Object
+			temp = new Reservation(
+					rs.getInt(1),
+					rs.getInt(2),
+					rs.getInt(3),
+					arrTime,
+					depTime,
+					rs.getInt(6),
+					ACarrTime,
+					ACdepTime					
+					);
+		}
+		return temp; //return
+	}
+
+	/*	Purpose:	Convert a Car ID to a Car Object
+	 * 	Input:		int Car ID
+	 * 	Output:		Car Object
+	 * */
+	public static Car ID_to_Car (int id) throws ClassNotFoundException, SQLException{
+		Car temp = null;
+		//get from database
+		rs = stmt.executeQuery("" +
+				" SELECT  * " +
+				" FROM cars" +
+				" WHERE carID " +
+				" LIKE " + id);
+		
+		int temp2;
+		if(rs.next()){
+			ArrayList<Integer> cIDs= new ArrayList<Integer>(5);
+			for(int i =3; i<=7; i++){
+				temp2 = rs.getInt(i);
+				if(temp2!=0){
+					cIDs.add(temp2);
+				}
+			}
+			//making Car
+			temp = new Car(
+					rs.getInt(1),
+					rs.getString(2),
+					cIDs
+					);
+		}
+		return temp; //return
+	}
+}

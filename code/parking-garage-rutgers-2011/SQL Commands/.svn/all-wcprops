@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/55/trunk/SQL%20Commands
+END
+createParkingSpace-small.sql
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/55/trunk/SQL%20Commands/createParkingSpace-small.sql
+END
+createAccountant.sql
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/26/trunk/SQL%20Commands/createAccountant.sql
+END
+updateCustomers.sql
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/15/trunk/SQL%20Commands/updateCustomers.sql
+END
+createCustomers.sql
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/20/trunk/SQL%20Commands/createCustomers.sql
+END
+createReservations.sql
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/20/trunk/SQL%20Commands/createReservations.sql
+END
+createParkingSpace.sql
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/58/trunk/SQL%20Commands/createParkingSpace.sql
+END
+createCars.sql
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/20/trunk/SQL%20Commands/createCars.sql
+END
+generate-customers.sql
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/20/trunk/SQL%20Commands/generate-customers.sql
+END
+general.sql
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/30/trunk/SQL%20Commands/general.sql
+END
+generate-cars.sql
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/20/trunk/SQL%20Commands/generate-cars.sql
+END

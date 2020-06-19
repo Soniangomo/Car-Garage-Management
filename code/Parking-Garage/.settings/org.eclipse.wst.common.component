@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="Parking-Garage">
+        <wb-resource deploy-path="/" source-path="/WebContent"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <dependent-module archiveName="parking-garage-rutgers-2011-2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/parking-garage-rutgers-2011-2/parking-garage-rutgers-2011-2">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="Parking-Garage"/>
+        <property name="java-output-path"/>
+    </wb-module>
+</project-modules>

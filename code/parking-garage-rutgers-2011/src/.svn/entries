@@ -1,0 +1,64 @@
+10
+
+dir
+57
+https://parking-garage-rutgers-2011.googlecode.com/svn/trunk/src
+https://parking-garage-rutgers-2011.googlecode.com/svn
+
+
+
+2011-05-04T13:42:35.400948Z
+57
+romanowskisoccer16@gmail.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3be77a84-09be-5f68-2331-3b0ca90a1a7c
+
+testbench
+dir
+
+hardwareController
+dir
+
+inputDevices
+dir
+
+interfaces
+dir
+
+database
+dir
+
+money
+dir
+
+databases
+dir
+
+mobile
+dir
+
+mechanics
+dir
+
+dataStructures
+dir
+
+classes
+dir
+
+layout
+dir
+

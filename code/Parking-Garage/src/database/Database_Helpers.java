@@ -1,0 +1,157 @@
+package database;
+
+import java.sql.SQLException;
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import dataStructures.*;
+
+public class Database_Helpers extends Database{
+	
+	/* Purpose: increment date column for database
+	 * Input:	String that is a date column 
+	 * Output:	Next date column
+	 * */
+	public static String incrementDateColumn(String currentColumn){
+		//tempVariables
+		String tempHour=null;
+		String tempMinute=null;
+		String temp;
+		
+		//change currentColumn
+		tempHour=currentColumn.substring(13,15);
+		tempMinute=currentColumn.substring(15,17);
+		
+		if(tempMinute.equals("00"))
+			currentColumn=currentColumn.substring(0,13)+tempHour+"15";
+		else if(tempMinute.equals("15"))
+			currentColumn=currentColumn.substring(0,13)+tempHour+"30";
+		else if(tempMinute.equals("30"))
+			currentColumn=currentColumn.substring(0,13)+tempHour+"45";
+		else{
+			temp=String.format("%d",Integer.parseInt(tempHour)+1);
+			if (temp.length()==1)
+				temp="0"+temp;
+			currentColumn=currentColumn.substring(0,13)+temp+"00";
+		}
+		return currentColumn;
+	}
+	
+	/* Purpose: Return customer IDs associated with a License Plate
+	 * Input: 	License Plate String
+	 * Output:	ArrayList<Integer> of all Customer IDs
+	 * 			returns an empty ArrayList for no customer ID associated
+	 */
+	protected static ArrayList<Integer> licensePlate_to_userIDs(String inputPlate) throws ClassNotFoundException, SQLException{
+		ArrayList<Integer> customerIDs=  new ArrayList<Integer>();
+		String customerID="customerID0";//changes for the columns
+
+		for (int i=1; i<=numLicensePlates;i++){
+			//change the column
+			customerID=customerID.substring(0,customerID.length()-1)+Integer.toString(i);
+
+			//mySQL query
+			rs = stmt.executeQuery("" +
+					" SELECT "+ customerID  +
+					" FROM cars" +
+					" WHERE	licensePlate" +
+					" LIKE "+ "\""+inputPlate+"\"");
+
+			//get answer
+			while (rs.next()){
+				customerIDs.add(rs.getInt(1));
+			}
+		}
+		return customerIDs;
+	}
+	
+	/*Purpose: Convert SQL Time to Calendar Object*/
+	public static Calendar SQLTime_to_Calendar (Time t){
+		if (t==null){
+			return null;
+		}
+		else{
+			Calendar a = new GregorianCalendar();
+			a.setTime(t);
+			return a;
+		}
+	}
+	
+	/*	Purpose:	Take a Calendar object and output the time */
+	public static String Calendar_to_DatabaseCalendar(Calendar time){
+		//time
+		String temp="time";
+		
+		//year
+		temp=temp+time.get(Calendar.YEAR);
+		
+		//month
+		if((time.get(Calendar.MONTH))<10){
+			temp=temp+"0";			
+		}
+		temp=temp+time.get(Calendar.MONTH);
+		
+		//date
+		if(time.get(Calendar.DATE)<10){
+			temp=temp+"0";
+		}
+		temp=temp+time.get(Calendar.DATE);
+		
+		//_
+		temp=temp+"_";
+		
+		//hour
+		if(time.get(Calendar.HOUR_OF_DAY)<10){
+			temp=temp+"0";
+		}
+		temp=temp+time.get(Calendar.HOUR_OF_DAY);
+		
+		//minute
+		if(time.get(Calendar.MINUTE)<10){
+			temp=temp+"0";
+		}
+		temp=temp+time.get(Calendar.MINUTE);
+		
+		//return
+		return temp;
+	}
+	
+	/*	Purpose:	Take a Calendar Object and convert it to SQL Time
+	 * 	Input:		Calendar Object
+	 * 	Output:		String for the SQL Time*/
+	public static String Calendar_to_SQLTime(Calendar time){
+		java.sql.Date javaSqlDate = new java.sql.Date(time.getTime().getTime());
+		java.sql.Time javaSqlTime = new java.sql.Time(time.getTime().getTime());
+		String inputDATETIME = javaSqlDate + " " + javaSqlTime +".0";
+		return inputDATETIME;
+	}
+	
+	/*	Purpose:	Helper to alert how many reservations a Customer has*/
+	public static int numReservations (Customer c) throws ClassNotFoundException, SQLException{
+		int i=0;
+		for (int j=0; j<c.getUpcomingReservationsID().size(); j++){
+			if (c.getUpcomingReservationsID().get(j) == 0){
+				return i;
+			}
+			else{
+				i++;
+			}
+		}
+		return i;
+	}
+	
+	/*	Purpose:	Helper for how many cars are there per a Customer*/
+	protected static int numCars (Customer c) throws ClassNotFoundException, SQLException{
+		int i=0;
+		for (int j=0; j<c.getCarIDs().size(); j++){
+			if (c.getCarIDs().get(j) == 0){
+				return i;
+			}
+			else{
+				i++;
+			}
+		}
+		return i;
+	}
+}

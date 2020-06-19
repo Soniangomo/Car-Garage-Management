@@ -1,0 +1,62 @@
+package hardwareController;
+
+import java.sql.SQLException;
+import java.util.*;
+
+import inputDevices.*;
+import interfaces.*;
+import mechanics.*;
+import classes.Main;
+import testbench.EnterTestbench;
+import testbench.ExitTestbench;
+
+public class ControllerOut implements Runnable{
+	
+	private String lp;
+	
+	public static Thread controllerOutThread;
+	
+	public ControllerOut() {
+		controllerOutThread = new Thread(this, "fourth");
+		controllerOutThread.start();
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void run() {
+		while( true ) {
+			System.out.println("sup");
+			while( lp == null ) {
+				try{
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				lp = Main.backCamera.getLP();
+				Main.backCamera.setLP(null);
+			}
+			try {
+				System.out.println(lp);
+				Main.exitGUI.goToPayScreen(lp, EnterTestbench.getTime());
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Main.backCamera.setLP(null);
+			lp = null;
+			controllerOutThread.suspend();
+			Main.backGate.setPaid();
+			Main.backGate.openGate();
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Main.backGate.closeGate();
+			ExitTestbench.testbenchOutThread.resume();
+		}
+	}
+}

@@ -1,0 +1,128 @@
+package dataStructures;
+
+import java.sql.*;
+import java.util.ArrayList;
+import database.*;
+import databases.*;
+
+public class Car  extends Database{
+	private int carID;
+	private String licensePlate;
+	private ArrayList<Integer> customerIDs;
+	
+	/*Constructors*/
+	public Car(){
+	}
+	public Car (int cID, String lPlate, ArrayList<Integer> cusID){
+		carID=cID;
+		licensePlate=lPlate;
+		customerIDs=cusID;
+	}
+	/*	Purpose:	Create a new Car and update the database
+	 * 	Input:		License Plate
+	 * 				# of customer ID if they have it, -1 otherwise 	
+	 * 	Output:		New Car Object
+	 * 				carID=-1 if CustomerID is full
+	 * */
+	public Car (String lPlate, int customerID) throws SQLException, ClassNotFoundException{
+		if(!(customerIDs==null) && customerIDs.size()>=5){
+			carID=-1;
+			licensePlate=null;
+			customerIDs=null;
+		}
+		else{
+			licensePlate = lPlate; //sync value
+			
+			//create new carID
+			stmt.executeUpdate(
+					" INSERT INTO Cars " +
+					" (licensePlate) " + 
+					" VALUES ('" + lPlate + "');");
+			//get carID
+			rs=stmt.executeQuery("SELECT MAX(carID) FROM Cars");
+			rs.next();
+			carID=rs.getInt(1); //sync value
+			
+			//create customer
+			Customer temp;
+			if(customerID==-1){
+				//	create customer value to store
+				temp = new Customer("Temporary");
+				temp.addCar(carID);
+			}
+			else{
+				temp = Database_Constructors.ID_to_Customer(customerID);
+				temp.addCar(carID);
+			}
+			
+			customerIDs = new ArrayList<Integer>(5);
+			customerIDs.add(temp.getCustomerID()); //sync value
+			
+			//update Database - customerID
+			stmt.executeUpdate(""+
+					" UPDATE Cars " +
+					" SET customerID1=" + customerIDs.get(0) + 
+					" WHERE carID= " + carID);
+		}
+	}
+	
+	/*Functions that affect the Database*/
+	/*	Purpose:	Remove a Customer from a Car
+	 * 	Input:		A customerID
+	 * 	Output:		true if successful
+	 * 	How:		If it is the last customer or there are no customers, 
+	 * 					then the car is deleted
+	 * 				Does not check the Customer object or database*/
+	public boolean removeCustomer(int custID) throws ClassNotFoundException, SQLException{
+		//delete entire car
+		System.out.println("size: " + customerIDs.size());
+		if (customerIDs.size()==0 || customerIDs.size()==1){
+			//delete from database
+			stmt.executeUpdate("" +
+					" DELETE FROM cars " +
+					" WHERE carID="+carID);
+			//delete variables
+			carID=-1;
+			licensePlate=null;
+			customerIDs=null;
+		}
+		//remove customer
+		else{
+			//edit this object
+			int location = customerIDs.lastIndexOf(custID);
+			customerIDs.remove(location);
+			
+			//update database
+			String temp="";
+			for (int i=1;i<=5;i++){
+				if(customerIDs.get(i-1)==0||customerIDs.get(i-1)==null){
+					temp="NULL";
+				}
+				else{
+					temp=String.format("%d", customerIDs.get(i-1));
+				}
+				stmt.executeUpdate("" +
+						" UPDATE Cars " +
+						" SET customerID" + i+"= " + temp + 
+						" WHERE carID= " + carID);
+			}
+		}
+		return true;
+	}
+	
+	/*Functions that return information*/
+	public int getCarID(){
+		return carID;
+	}
+	public String getLicensePlate(){
+		return licensePlate;
+	}
+	public ArrayList<Customer> getCustomerIDs() throws ClassNotFoundException, SQLException{
+		ArrayList<Customer> temp = new ArrayList <Customer>();
+		for (int i =0; i<customerIDs.size(); i++){
+			temp.add(Database_Constructors.ID_to_Customer(customerIDs.get(i)));
+		}
+		return temp;
+	}
+
+}

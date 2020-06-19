@@ -1,0 +1,249 @@
+package database;
+
+import java.sql.*;
+import java.util.Calendar;
+import java.util.ArrayList;
+import dataStructures.*;
+import databases.*;
+
+public class Database {
+	/*class variables*/
+	protected static Connection con=null;
+	protected static Statement stmt=null;
+	protected static ResultSet rs=null;
+	protected static int numLicensePlates=5;
+	protected static int numParkingSpots;
+	protected static int spotsPerFloor=26;
+	protected static int numFloors=4;
+	protected static int parkingStartNumber;
+
+	/*Constructor*/
+	public Database(){
+		parkingStartNumber=0;
+		numParkingSpots=spotsPerFloor*numFloors;
+	}
+	/*Purpose: Open connection to database*/
+	public static boolean connectToDatabase() throws ClassNotFoundException, SQLException{
+		String username = "root";
+		String password = "park";
+		String url = "jdbc:mysql://localhost:3306/";
+		Class.forName("com.mysql.jdbc.Driver");
+		con = DriverManager.getConnection(url+"parkinggarage", username, password);
+		stmt = con.createStatement();
+		return true; //assume this works
+	}
+	/*Purpose: Close connection to database*/
+	public static boolean closeDatabase() throws ClassNotFoundException, SQLException{
+		rs.close();
+		stmt.close();
+		con.close();
+		return true;//assume this works
+	}
+
+	/* Purpose: Given a license plate, return all the customer associated with this license plate
+	 * Input: License Plate
+	 * Output: ArrayList<Customer>
+	 * */
+	public ArrayList<Customer> licensePlate_to_Customer(String inputPlate) throws ClassNotFoundException, SQLException{
+		Car temp = Database.licensePlate_to_Car(inputPlate);
+		if (temp ==null){
+			return null;
+		}
+		return temp.getCustomerIDs();
+	}
+	
+	/*	Purpose: 	Given plate, output a Car
+	 * 	Input: 		String plate
+	 * 	Ouput: 		Car object
+	 * 				null if no object
+	 */
+	public static Car licensePlate_to_Car (String plate) throws ClassNotFoundException, SQLException{
+		int id;
+		
+		//query
+		rs=stmt.executeQuery("" +
+				"SELECT carID " +
+				"FROM cars " +
+				"WHERE licensePlate " +
+				"LIKE "+ "\""+plate+"\"");
+		
+		//put for output
+		if(rs.next()){
+			id=rs.getInt(1);
+		}
+		else{
+			return null;
+		}		
+		//convert plate to a car ID
+		//return car
+		return (Database_Constructors.ID_to_Car(id));
+	}
+	
+	/*	Purpose: Given userID, output a Customer
+	 * 	Input: int id
+	 * 	Output: Customer 
+	 */
+	public static Customer userID_to_Customer (int id) throws ClassNotFoundException, SQLException{
+		return Database_Constructors.ID_to_Customer(id);
+	}
+	
+	/*	Purpose: Given carID, output a Car
+	 * 	Input: int id
+	 * 	Output: Car 
+	 */
+	public static Car carID_to_Car (int id) throws ClassNotFoundException, SQLException{
+		return Database_Constructors.ID_to_Car(id);
+	}
+	
+	/*	Purpose: Given reservationID, output a Reservation
+	 * 	Input: int id
+	 * 	Output: Reservation 
+	 */
+	public static Reservation reservationID_to_Reservation (int id) throws ClassNotFoundException, SQLException{
+		return Database_Constructors.ID_to_Reservation(id);
+	}
+	
+	/* Purpose:	Search database for an available parking space during the requested times
+	 * Input:	Calendar objects: start time and end time
+	 * Output:	parking spot # that is available during this time, -1 if no space
+	 * How:		Given the request period, function searches parking garage for possible spots.
+	 * 			Returns the first spot that is available during this given time. 
+	 * Future:	
+	 */
+	public static int availableParkingSpot (Calendar start, Calendar end) throws ClassNotFoundException, SQLException{
+		//TODO - Add buffers for parking spots
+		parkingStartNumber++; //changes so that an incremently new parking Space is started with
+		String databaseEntry="";
+		int numTimes=0; //get track of the amount of 15 minute intervals there in the date given
+		
+		/*	Create currentColumn from date	*/
+		String time_start=Database_Helpers.Calendar_to_DatabaseCalendar(start);
+		String time_end=Database_Helpers.Calendar_to_DatabaseCalendar(end);
+		String currentColumn=Database_Helpers.incrementDateColumn(time_start);
+		databaseEntry=time_start;
+		numTimes++;
+		//make massive string for database
+		while(!currentColumn.equals(time_end)){
+			databaseEntry=databaseEntry+","+currentColumn;
+			numTimes++;
+			currentColumn=Database_Helpers.incrementDateColumn(currentColumn);
+		}
+		//add the last column
+		databaseEntry=databaseEntry+","+time_end; //add last one
+		numTimes++;
+		
+		//get only the parking spaces for a certain time
+		rs = stmt.executeQuery(
+				" SELECT " + databaseEntry + 
+				" FROM parkingSpaces");
+		
+		//find an available parking space now
+		int currentParkingSpot=parkingStartNumber-1;
+		boolean good=true;
+		while(rs.next()){
+			good = true; //reset
+			//increment the parking spot
+			currentParkingSpot=(currentParkingSpot+1)%numParkingSpots;
+			if(currentParkingSpot==0){
+				currentParkingSpot++;
+			}
+			
+			//search through the return values
+			for (int j=1; j<=numTimes; j++){
+				if (rs.getInt(j)!=0){
+					good=false;
+					break; //not an available parking space
+				}
+			}
+			if(good){
+				return currentParkingSpot; //answer! done!
+			}
+		}
+		return -1; //none available
+/*		//return value
+		int[] parkingSpots = new int[numParkingSpots];
+		int tempInt=0;
+		boolean notPossible=false;
+		int counter=0;
+
+		//creating strings for the column traversal
+		
+
+		//the database rows will be traversed and then the columns will be also traversed
+		currentColumn=time_start;
+
+		//go until currentColumn reaches the end_column
+		while(currentColumn.compareTo(time_end)<=0){
+			counter++;
+			//TODO try to optimize this look up
+			rs=stmt.executeQuery(
+					"SELECT parkingSpaceID " +
+					"FROM parkingSpaces " +
+					"WHERE " + currentColumn + 
+					" IS NULL");
+			notPossible=false;
+			while (rs.next()){
+				tempInt=rs.getInt(1);
+				if(parkingSpots[tempInt-1]==(counter-1)){
+					parkingSpots[tempInt-1]=parkingSpots[tempInt-1]+1;
+					notPossible=true;
+				}
+			}
+			//no values were updated
+			if(notPossible==false)
+				break;
+
+			//next column
+			currentColumn=Database_Helpers.incrementDateColumn(currentColumn);
+		}
+		for (int j =0; j<numParkingSpots; j++){
+			if (parkingSpots[j]==counter){
+				return (j+1);
+			}
+		}
+		return -1;*/
+	}
+	
+	/*	Purpose:	Tell caller how full the garage is at a certain time
+	 * 	Input:		Time
+	 * 	Output:		Percentage
+	 * */
+	public static float garageOccupancy (Calendar time) throws ClassNotFoundException, SQLException{
+			float percentage;
+			float numTaken=0;
+			float numSpots=0;
+			
+			rs = stmt.executeQuery(
+					" SELECT " + Database_Helpers.Calendar_to_DatabaseCalendar(time) + 
+					" FROM parkingSpaces");
+			while (rs.next()){
+				if(rs.getInt(1)!=0){
+					numTaken++;
+				}
+				numSpots++;
+			}
+			percentage = numTaken/numSpots*100;
+			
+			return percentage;
+	}
+	
+	/*	Purpose:	If the garage is full at a certain time, return true
+	 * 	Input:		Time
+	 * 	Output:		true if full, false is not full
+	 * */
+	public static boolean isCurrentlyFull (Calendar time) throws ClassNotFoundException, SQLException{
+		if (garageOccupancy(time)==100){
+			return true;
+		}
+		return false;
+	}
+
+
+}
+
+/*licensePlate_to_CurrentReservation*/
+/*optimizeParkingSpaces*/
+/*updateReservation*/
+/*carChecksIn*/
+/*carChecksOut*/
+/*availableParkingSpot_WeekORMonth*/
