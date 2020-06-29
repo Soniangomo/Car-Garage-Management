@@ -1,4 +1,4 @@
-/*Brian Goodacre*/
+/*Sonia Ngomo*/
 
 /*This is for single reservations*/
 use parkinggarage;

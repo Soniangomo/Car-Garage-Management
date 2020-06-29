@@ -1,4 +1,4 @@
-/*Brian Goodacre*/
+/*Sonia Ngomo*/
 USE parkinggarage;
 
 DROP TABLE parkingSpaces;

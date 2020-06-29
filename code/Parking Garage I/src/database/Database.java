@@ -1,6 +1,3 @@
-//written by: Brian Goodacre 
-//assisted by:
-//debugged by: Brian Goodacre
 package database;
 
 import java.sql.*;

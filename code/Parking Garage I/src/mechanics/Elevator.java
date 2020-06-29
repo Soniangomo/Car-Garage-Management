@@ -1,7 +1,3 @@
-//written by: James Jacob
-//assisted by: Richard Romanowksi
-//debugged by: James Jacob and Richard Romanowski
-
 package mechanics;
 
 public class Elevator{

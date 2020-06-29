@@ -1,6 +1,3 @@
-//written by: Brian Goodacre
-//assisted by:
-//debugged by: Brian Goodacre
 package database;
 
 import java.sql.SQLException;
@@ -47,8 +44,8 @@ public class Database_Helpers extends Database{
 	 * Output:	ArrayList<Integer> of all Customer IDs
 	 * 			returns an empty ArrayList for no customer ID associated
 	 */
-	protected static ArrayList<Integer> licensePlate_to_userIDs(String inputPlate) throws ClassNotFoundException, SQLException{
-		ArrayList<Integer> customerIDs=  new ArrayList<Integer>();
+	protected static ArrayList<Integer> licensePlate_to_userIDs(final String inputPlate) throws ClassNotFoundException, SQLException{
+		final ArrayList<Integer> customerIDs=  new ArrayList<Integer>();
 		String customerID="customerID0";//changes for the columns
 
 		for (int i=1; i<=numLicensePlates;i++){
@@ -72,12 +69,12 @@ public class Database_Helpers extends Database{
 	
 	/*Purpose: Convert SQL Time to Calendar Object*/
 	@SuppressWarnings({ "deprecation" })
-	public static Calendar SQLTime_to_Calendar (Date d, Time t){
+	public static Calendar SQLTime_to_Calendar (final Date d, final Time t){
 		if (t==null){
 			return null;
 		}
 		else{
-			Calendar a = new GregorianCalendar();
+			final Calendar a = new GregorianCalendar();
 			a.setTime(d);
 			a.set(Calendar.HOUR, t.getHours());
 			a.set(Calendar.MINUTE, t.getMinutes());
@@ -88,7 +85,7 @@ public class Database_Helpers extends Database{
 	}
 	
 	/*	Purpose:	Take a Calendar object and output the time */
-	public static String Calendar_to_DatabaseCalendar(Calendar time){
+	public static String Calendar_to_DatabaseCalendar(final Calendar time){
 		//time
 		String temp="time";
 		
@@ -129,10 +126,10 @@ public class Database_Helpers extends Database{
 	/*	Purpose:	Take a Calendar Object and convert it to SQL Time
 	 * 	Input:		Calendar Object
 	 * 	Output:		String for the SQL Time*/
-	public static String Calendar_to_SQLTime(Calendar time){
-		java.sql.Date javaSqlDate = new java.sql.Date(time.getTime().getTime());
-		java.sql.Time javaSqlTime = new java.sql.Time(time.getTime().getTime());
-		String inputDATETIME = javaSqlDate + " " + javaSqlTime +".0";
+	public static String Calendar_to_SQLTime(final Calendar time){
+		final java.sql.Date javaSqlDate = new java.sql.Date(time.getTime().getTime());
+		final java.sql.Time javaSqlTime = new java.sql.Time(time.getTime().getTime());
+		final String inputDATETIME = javaSqlDate + " " + javaSqlTime +".0";
 		return inputDATETIME;
 	}
 	
@@ -166,8 +163,8 @@ public class Database_Helpers extends Database{
 //	}
 
 	//copies a calendar
-	public static Calendar copyCalendar(Calendar c){
-		Calendar a = new GregorianCalendar();
+	public static Calendar copyCalendar(final Calendar c){
+		final Calendar a = new GregorianCalendar();
 		a.set(c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(Calendar.DATE),c.get(Calendar.HOUR),c.get(Calendar.MINUTE));
 		return a;
 	}

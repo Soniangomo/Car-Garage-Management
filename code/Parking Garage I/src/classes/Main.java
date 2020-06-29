@@ -1,7 +1,3 @@
-//written by: James Jacob
-//assisted by: Richard Romanowski
-//debugged by: James and Richard
-
 package classes;
 
 import java.util.*;

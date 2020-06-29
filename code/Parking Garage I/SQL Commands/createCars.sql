@@ -1,4 +1,4 @@
-/*Brian Goodacre*/
+/*Sonia Ngomo*/
 use parkinggarage;
 
 DROP TABLE cars;

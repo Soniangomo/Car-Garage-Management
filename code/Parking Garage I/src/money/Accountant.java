@@ -1,7 +1,3 @@
-//written by: Brian Goodac re
-//assisted by: Richard Romanowski
-//debugged by: Brian Goodacre and Richard Romanowski
-
 package money;
 
 import java.sql.SQLException;

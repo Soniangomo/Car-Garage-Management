@@ -1,7 +1,3 @@
-//written by: Richard Romanowksi
-//assisted by: 
-//debugged by: Richard Romanowski and Brian Goodacre
-
 package mobile;
 
 import java.awt.Font;

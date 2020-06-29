@@ -1,7 +1,3 @@
-//written by: Brian Goodacre
-//assisted by:
-//debugged by: Brian Goodacre
-
 package databases;
 
 import java.sql.SQLException;

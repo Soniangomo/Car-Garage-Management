@@ -8,7 +8,7 @@ UPDATE parkingspaces SET time20110101_0045=NULL;
 
 SELECT time20110101_0130 FROM parkingspaces WHERE time20110101_0130 IS NOT NULL;
 
-SELECT reservationID  FROM reservations  WHERE arrivalTime='2011-02-01 01:15:00.0'
+SELECT reservationID  FROM reservations  WHERE arrivalTime='2020 29 06 :15:00.0'
 
 SELECT customerID1 FROM cars WHERE	licensePlate LIKE "ABC123"
 

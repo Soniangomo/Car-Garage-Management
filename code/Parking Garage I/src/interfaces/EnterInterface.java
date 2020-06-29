@@ -1,7 +1,3 @@
-//written by: Richard Romanowksi
-//assisted by: James Jacob
-//debugged by: Richard Romanowski and James Jacob 
-
 package interfaces;
 
 import hardwareController.Controller;

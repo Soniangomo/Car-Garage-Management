@@ -1,7 +1,3 @@
-//written by: Matthew Rodriguez
-//assisted by: Richard Romanowksi
-//debugged by: Matthew Rodriguez and Richard Romanowski
-
 package layout;
 
 import java.awt.*;
